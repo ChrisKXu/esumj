@@ -1,0 +1,42 @@
+== Echo-Sort-Unique-Merge Join
+== Designed by Christopher Xu (XuHotdogs@gmail.com)
+
+== Usage
+To use this small utility, simply type 'ruby esumj.rb [r.txt] [s.txt] [result]', or you can choose to 'chmod a+x esumj.rb'.
+Notice that you should replace 'r.txt', 's.txt' to the actual input files and 'result' to the output file.
+
+Both input files should take the form of
+  key1 value1
+  key2 value2
+  etc...
+and the output result will be like this:
+  key1 value_from_r value_from_s
+  key2 value_from_r value_from_s
+  etc...
+
+== How it's implemented
+The program utilizes the tools from unix system instead of re-implementing the algorithms itself, making the code more easy to understand and to use.
+The tools from the unix system are:
+  - echo: to write lines of records to the input file
+  - sort: to sort a file by their keys
+  - uniq: to remove duplicate values from a sorted file
+Also, the program uses /tmp directory to store temporary data, and clean them all up afterwards.
+
+All right, let's begin the sort!
+
+First, when the program sees the input file r.txt, it does the following for every line in the file:
+  - Extract the key and value from the line by split it up
+    - if the line is '1 abc', then key is 1 and value is abc
+  - echo the value into '/tmp/esumj_r.txt_[key]', the '[key]' is replaced with the actual key(1 in case of previous example) so that values with the same key will be put in the same file
+  - echo the key into '/tmp/esumj_r.txt_keys' so that we know how much keys we're getting
+Then we sort and uniq the key file, which is '/tmp/esumj_r.txt_keys'
+Repeat the above steps for another input file s.txt
+When the 2 input file are well prepared, we can do a regular merge join by reading and merging the two keys files and then putting the actual values into place.
+Finally, clean up the temp files and we're done!
+
+== Potential Improvements
+The code is a mere demonstration of how this idea could be implemented, and it still needs some refinements before it can be put into a real use case.
+  - If no results can be joined, the output file may not be generated. This could lead to confusion when you see no output files and no error reports.
+  - The code cannot run in parallel because it uses /tmp directory. If you run this program more than once at the same time, there's no telling what would happen.
+  - The code didn't make use of a memory buffer strategy, and this might be the bottleneck of performance. I'll see if I can improve it.
+  - If you have ideas about how to improve this code, feel free to contact me on github or email.
